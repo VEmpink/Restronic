@@ -33,23 +33,25 @@ const connect = async () => {
 
     return {userInfo, tokens};
   } catch (error) {
-    if (error.message === 'NETWORK_ERROR') {
-      snackbar.show(
-        'error',
-        'Gagal terhubung ke server Google, ' +
-          'mohon periksa jaringan internet!',
-      );
-    }
+    switch (error.code) {
+      case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
+        snackbar.show('error', 'Layanan Google Play tidak tersedia!');
+        break;
 
-    if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-      snackbar.show('error', 'Layanan Google Play tidak tersedia!');
-    }
+      case statusCodes.IN_PROGRESS:
+        snackbar.show(
+          'warning',
+          'Sedang menghubungkan ke server Google, mohon tunggu...!',
+        );
+        break;
 
-    if (error.code === statusCodes.IN_PROGRESS) {
-      snackbar.show(
-        'warning',
-        'Sedang menghubungkan ke server Google, mohon tunggu...!',
-      );
+      default:
+        snackbar.show(
+          'error',
+          'Gagal terhubung ke server Google, ' +
+            'mohon periksa jaringan internet!',
+        );
+        break;
     }
   }
 };

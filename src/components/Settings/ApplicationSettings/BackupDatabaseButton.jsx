@@ -29,11 +29,9 @@ const BackupDatabaseButton = props => {
         setRealmFileSize(
           getMB > 0.1 ? _.floor(getMB, 2) + 'MB' : _.ceil(getKB, 2) + 'KB',
         );
-      } catch (error) {
-        util.snackbar.show('warning', 'Gagal menghitung ukuran file Database!');
-      }
+      } catch (error) {}
     })();
-  }, [user.name]);
+  }, [user.lastLocalBackupAt]);
 
   return (
     <>

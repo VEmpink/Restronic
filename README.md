@@ -10,10 +10,4 @@ Restore, service, and electronic. Applications for Electronic Technicians, espec
 - and more.
 
 #### How to Read File
-
-=======
-### Restronic
-Restore, service, and electronic
-
-#### How to Read File
 <img src="./restronicHowToReadFile.svg">

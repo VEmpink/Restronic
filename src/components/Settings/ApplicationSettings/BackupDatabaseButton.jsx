@@ -27,7 +27,7 @@ const BackupDatabaseButton = props => {
         const getMB = realmFileStat.size / (1024 * 1024);
         const getKB = realmFileStat.size / 1024;
         setRealmFileSize(
-          getMB > 0.1 ? _.floor(getMB, 2) + 'MB' : _.ceil(getKB, 2) + 'KB',
+          getMB >= 0.1 ? _.floor(getMB, 2) + 'MB' : _.ceil(getKB, 2) + 'KB',
         );
       } catch (error) {}
     })();

@@ -170,10 +170,11 @@ const showRestoreDataDialog = ({Realm, handlePress, onSuccess, onFinally}) => {
           handlePress?.();
 
           try {
-            const {tokens} = await GoogleDrive.connect();
+            const resConnect = await GoogleDrive.connect();
 
-            if (tokens) {
-              const files = await GoogleDrive.getFiles(tokens.accessToken);
+            if (resConnect && resConnect.tokens) {
+              const {accessToken} = resConnect.tokens;
+              const files = await GoogleDrive.getFiles(accessToken);
 
               if (files && files.length) {
                 const fileId = files[0].id;
@@ -188,12 +189,17 @@ const showRestoreDataDialog = ({Realm, handlePress, onSuccess, onFinally}) => {
                   await fs.mkdir(dirPath);
                 } catch (error) {}
 
+                /**
+                 * "data" is filePath
+                 */
                 const {data} = await RNFetchBlob.config({
                   timeout: 7000,
                   addAndroidDownloads: {
                     useDownloadManager: true,
-                    title: 'Sedang memulihkan Database...',
-                    description: 'Mohon tunggu...',
+                    title: 'Mengunduh Database cadangan',
+                    description:
+                      'Sistem akan secara otomatis ' +
+                      'memulihkan Database cadangan anda',
                     notification: true,
                     path: filePath,
                     mime: 'application/octet-stream',
@@ -202,7 +208,7 @@ const showRestoreDataDialog = ({Realm, handlePress, onSuccess, onFinally}) => {
                   'GET',
                   `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
                   {
-                    Authorization: `Bearer ${tokens.accessToken}`,
+                    Authorization: `Bearer ${accessToken}`,
                   },
                 );
 
@@ -214,16 +220,14 @@ const showRestoreDataDialog = ({Realm, handlePress, onSuccess, onFinally}) => {
                     onSuccess?.();
                   });
                 } else {
-                  throw new Error('Android Download Manager has been failed');
+                  throw new Error('Retrieve Database failed!');
                 }
               } else {
                 snackbar.show(
                   'warning',
-                  'Tidak ada data yang telah dicadangkan ke akun Google Drive Anda!',
+                  'Tidak ada Database cadangan di Akun Google Drive Anda!',
                 );
               }
-            } else {
-              throw new Error('Failed connectiong to Google!');
             }
           } catch (error) {
             snackbar.show(

@@ -17,28 +17,35 @@ import {ThemeContext} from '../../contexts';
  *   onPress={() => {}}
  * />
  */
-const IconHelper = memo(props => {
-  const {size, color, onPress} = props;
-  const {themeMode} = useContext(ThemeContext);
+const IconHelper = memo(
+  props => {
+    const {size, color, onPress} = props;
+    const {themeMode} = useContext(ThemeContext);
 
-  return (
-    <TouchableHighlight
-      onPress={onPress}
-      activeOpacity={1}
-      underlayColor={props.underlayColor || 'rgba(143, 155, 179, 0.24)'}
-      style={{padding: onPress ? 4 : 0, borderRadius: 4}}
-    >
-      <Icon
-        name={props.name || 'question-mark-outline'}
-        style={{
-          width: size || 24,
-          height: size || 24,
-          tintColor: color ? color : themeMode === 'light' ? '#092c4c' : '#fff',
-          ...props.style,
-        }}
-      />
-    </TouchableHighlight>
-  );
-});
+    return (
+      <TouchableHighlight
+        onPress={onPress}
+        activeOpacity={1}
+        underlayColor={props.underlayColor || 'rgba(143, 155, 179, 0.24)'}
+        style={{padding: onPress ? 4 : 0, borderRadius: 4}}
+      >
+        <Icon
+          name={props.name || 'question-mark-outline'}
+          style={{
+            width: size || 24,
+            height: size || 24,
+            tintColor: color
+              ? color
+              : themeMode === 'light'
+              ? '#092c4c'
+              : '#fff',
+            ...props.style,
+          }}
+        />
+      </TouchableHighlight>
+    );
+  },
+  () => true,
+);
 
 export default IconHelper;

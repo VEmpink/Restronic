@@ -16,23 +16,31 @@ import SplashScreen from 'react-native-splash-screen';
 const SetupScreen = props => {
   const {onResponse} = props;
   const {Realm} = useContext(RealmContext);
-  const [nameOfUser, setNameOfUser] = useState('');
+  const [userName, setUserName] = useState('');
   const [companyName, setCompanyName] = useState('');
-  const [fieldStatus, setFieldStatus] = useState({
-    first: 'basic',
-    second: 'basic',
+
+  const [statusField, setStatusField] = useState({
+    name: 'basic',
+    companyName: 'basic',
   });
+
+  const Avatar_Ref = useRef();
+  const nameField = useRef();
+  const companyNameField = useRef();
   const ModalProgress_Ref = useRef();
-  let FirstField;
-  let SecondField;
-  let Avatar_ref;
+
+  /**
+   * @param {statusField} newState
+   */
+  const dispatchStatusField = newState =>
+    setStatusField(prevState => ({...prevState, ...newState}));
 
   /**
    * Recheck user data
    */
   const handleDialogActions = () => {
     if (Realm.objects('user').isEmpty()) {
-      util.snackbar.show('error', 'Gagal membuat data pengguna!');
+      util.snackbar.show('error', 'Gagal membuat Profil!');
     } else {
       /**
        * Send a response to the Parent Component via props
@@ -63,38 +71,40 @@ const SetupScreen = props => {
           Mohon isi standar informasi dibawah ini
         </Text>
 
-        <Avatar
-          parentStyle={{marginVertical: 16}}
-          ref={ref => (Avatar_ref = ref)}
-        />
+        <Avatar parentStyle={{marginVertical: 16}} ref={Avatar_Ref} />
 
         <View>
           <Input
             label='Nama Anda'
             placeholder='Ramdani'
-            value={nameOfUser}
-            status={fieldStatus.first}
+            value={userName}
+            status={statusField.name}
             returnKeyType='next'
             onChangeText={text => {
-              setNameOfUser(text);
-              setFieldStatus(prev => ({...prev, first: 'basic'}));
+              setUserName(text);
+
+              if (statusField.name !== 'basic') {
+                dispatchStatusField({name: 'basic'});
+              }
             }}
-            onSubmitEditing={() => SecondField.focus()}
-            ref={ref => (FirstField = ref)}
+            onSubmitEditing={() => companyNameField.current.focus()}
+            ref={nameField}
           />
 
           <Input
             label='Nama Usaha/Toko/Perusahaan'
-            placeholder='Redux Cell'
+            placeholder='Doctrine Cell'
             value={companyName}
-            status={fieldStatus.second}
+            status={statusField.companyName}
             style={{marginVertical: 16}}
-            returnKeyType='next'
             onChangeText={text => {
               setCompanyName(text);
-              setFieldStatus(prev => ({...prev, second: 'basic'}));
+
+              if (statusField.companyName !== 'basic') {
+                dispatchStatusField({companyName: 'basic'});
+              }
             }}
-            ref={ref => (SecondField = ref)}
+            ref={companyNameField}
           />
 
           <View style={{justifyContent: 'center', alignItems: 'center'}}>
@@ -105,15 +115,15 @@ const SetupScreen = props => {
               onPress={async () => {
                 try {
                   const formData = await validateUserBasicInfo({
-                    nameOfUser,
+                    name: userName,
                     companyName,
                   });
 
                   Realm.write(() => {
                     Realm.create('user', {
-                      name: formData.nameOfUser,
+                      name: formData.name,
                       companyName: formData.companyName,
-                      photo: Avatar_ref.getImgSrc(),
+                      photo: Avatar_Ref.current.getImgSrc(),
                     });
 
                     Alert.alert(
@@ -133,23 +143,19 @@ const SetupScreen = props => {
                   });
                 } catch (error) {
                   if (error.name === 'ValidationError') {
-                    const fieldNameOfError = error.details[0].context.label;
+                    const errorLabel = error.details[0].context.label;
 
-                    if (fieldNameOfError === 'nameOfUser') {
-                      FirstField.focus();
-                      setFieldStatus(prev => ({...prev, first: 'danger'}));
+                    if (errorLabel === 'name') {
+                      nameField.current.focus();
+                      dispatchStatusField({name: 'danger'});
                     } else {
-                      SecondField.focus();
-                      setFieldStatus(prev => ({...prev, second: 'danger'}));
+                      companyNameField.current.focus();
+                      dispatchStatusField({companyName: 'danger'});
                     }
 
                     util.snackbar.show('error', error.details[0].message);
                   } else {
-                    util.snackbar.show(
-                      'error',
-                      'Gagal memasukkan data pengguna ke Database!',
-                      false,
-                    );
+                    util.snackbar.show('error', 'Gagal membuat Profil!', false);
                   }
                 }
               }}

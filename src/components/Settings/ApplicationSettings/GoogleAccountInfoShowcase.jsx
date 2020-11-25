@@ -13,15 +13,11 @@ const GoogleAccountInfoShowcase = props => {
 
   useEffect(() => {
     (async () => {
-      try {
-        const hasSignIn = await GoogleSignin.isSignedIn();
+      const hasSignIn = await GoogleSignin.isSignedIn();
 
-        if (hasSignIn) {
-          const signInInfo = await GoogleSignin.getCurrentUser();
-          setGoogleUserInfo(signInInfo);
-        }
-      } catch (error) {
-        util.snackbar.show('error', 'Gagal terhubung ke Akun Google Anda!');
+      if (hasSignIn) {
+        const signInInfo = await GoogleSignin.getCurrentUser();
+        setGoogleUserInfo(signInInfo);
       }
     })();
   }, []);
@@ -50,15 +46,8 @@ const GoogleAccountInfoShowcase = props => {
             size='small'
             style={{marginTop: 8}}
             onPress={async () => {
-              try {
-                await GoogleSignin.signOut();
-                setGoogleUserInfo(null);
-              } catch (error) {
-                util.snackbar.show(
-                  'error',
-                  'Gagal mengeluarkan Akun Google Anda!',
-                );
-              }
+              await GoogleSignin.signOut();
+              setGoogleUserInfo(null);
             }}
           >
             Nonaktifkan
@@ -77,10 +66,10 @@ const GoogleAccountInfoShowcase = props => {
           size={GoogleSigninButton.Size.Wide}
           color={GoogleSigninButton.Color.Dark}
           onPress={async () => {
-            const {userInfo} = await util.GoogleDrive.connect();
+            const resConnect = await util.GoogleDrive.connect();
 
-            if (userInfo) {
-              setGoogleUserInfo(userInfo);
+            if (resConnect && resConnect.userInfo) {
+              setGoogleUserInfo(resConnect.userInfo);
             }
           }}
         />

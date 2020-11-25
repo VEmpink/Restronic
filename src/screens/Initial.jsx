@@ -68,7 +68,6 @@ const InitialLoading = props => {
           hasUserData: !RealmMethods.objects('user').isEmpty(),
         });
       } catch (error) {
-        console.error(error);
         SplashScreen.hide();
         util.snackbar.show('error', `Gagal melakukan pemuatan awal!`, false);
       }

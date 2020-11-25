@@ -62,7 +62,7 @@ const HomeHeader = props => {
       <Avatar
         uri={user.photo}
         size={72}
-        onChangeImage={base64 => {
+        onImageChange={base64 => {
           Realm.write(() => {
             user.photo = base64;
           });

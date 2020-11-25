@@ -2,6 +2,7 @@ import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useRef,
   useState,
 } from 'react';
 import {View, Dimensions} from 'react-native';
@@ -63,10 +64,6 @@ const FormComponent = props => {
       }
     });
 
-    /**
-     * Kalau nilai yang sekarang dari data pelanggan 0 maka kosongkan saja,
-     * jika tidak maka akan menghalangi "placeholder"-nya
-     */
     setWarranty(currentWarrantyTime == 0 ? '' : currentWarrantyTime);
   }, []);
 
@@ -165,15 +162,15 @@ const FormComponent = props => {
 };
 
 const FormChangeStatusData = forwardRef((props, ref) => {
-  let Modal_ref;
+  const Modal_Ref = useRef();
 
   useImperativeHandle(ref, () => ({
-    show: () => Modal_ref.show(),
-    hide: () => Modal_ref.hide(),
+    show: () => Modal_Ref.current.show(),
+    hide: () => Modal_Ref.current.hide(),
   }));
 
   return (
-    <Modal ref={ref => (Modal_ref = ref)}>
+    <Modal ref={Modal_Ref}>
       <FormComponent
         currentServiceStatus={props.currentServiceStatus}
         currentWarrantyTime={props.currentWarrantyTime}
@@ -192,7 +189,7 @@ const FormChangeStatusData = forwardRef((props, ref) => {
             /** Kirim response ke Parent Component via props */
             props.onPressSubmit(validStatusData, validWarrantyTime);
 
-            Modal_ref.hide();
+            Modal_Ref.current.hide();
           } catch (error) {
             util.snackbar.show(
               'error',
@@ -201,7 +198,7 @@ const FormChangeStatusData = forwardRef((props, ref) => {
             );
           }
         }}
-        onCancel={() => Modal_ref.hide()}
+        onCancel={() => Modal_Ref.current.hide()}
       />
     </Modal>
   );

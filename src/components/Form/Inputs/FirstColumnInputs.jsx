@@ -27,6 +27,12 @@ const FirstColumnInputs = forwardRef((props, ref) => {
   const deviceBrandField = useRef();
 
   /**
+   * Hanya digunakan ketika Form Utama dalam mode edit, nilainya adalah
+   * tanggal "createdAt" dari data pelanggan yang ingin diubah
+   */
+  const currentCreatedAt = useRef();
+
+  /**
    * @param {initialInputData} newState
    */
   const dispatchInputData = newState =>
@@ -39,7 +45,10 @@ const FirstColumnInputs = forwardRef((props, ref) => {
     setUIState(prevState => ({...prevState, ...newState}));
 
   useImperativeHandle(ref, () => ({
-    setInputData: data => dispatchInputData(data),
+    setInputData: data => {
+      dispatchInputData(data);
+      currentCreatedAt.current = data.createdAt;
+    },
     getInputData: () => ({
       ...inputData,
       createdAt: inputData.createdAt ? inputData.createdAt : Date.now(),
@@ -90,7 +99,11 @@ const FirstColumnInputs = forwardRef((props, ref) => {
           onChange={(e, selectedDate) => {
             dispatchUIState({showDatepicker: false});
             dispatchInputData({
-              createdAt: selectedDate ? selectedDate.valueOf() : selectedDate,
+              createdAt: selectedDate
+                ? selectedDate.valueOf()
+                : !selectedDate && currentCreatedAt.current
+                ? currentCreatedAt.current
+                : selectedDate,
             });
           }}
         />

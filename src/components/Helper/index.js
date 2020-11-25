@@ -7,7 +7,6 @@ import NativePicker from './NativePicker';
 import Modal from './Modal';
 import Avatar from './Avatar';
 import ModalProgress from './ModalProgress';
-import Dialog from './Dialog';
 
 export {
   Contrainer,
@@ -19,5 +18,4 @@ export {
   Modal,
   Avatar,
   ModalProgress,
-  Dialog,
 };

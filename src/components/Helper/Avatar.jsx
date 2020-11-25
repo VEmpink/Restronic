@@ -65,7 +65,7 @@ const PressableImage = props => {
 const ModalInsertPhoto = memo(
   forwardRef((props, ref) => {
     const {onSelectedImage} = props;
-    let Modal_ref;
+    const Modal_Ref = useRef();
 
     const handlePressMenu = async ImageCropPickerMethod => {
       try {
@@ -91,7 +91,7 @@ const ModalInsertPhoto = memo(
           RNFetchBlob.fs.dirs.SDCardApplicationDir + '/files',
         );
         await ImageCropPicker.clean();
-        Modal_ref.hide();
+        Modal_Ref.current.hide();
         return `data:${cropedImage.mime};base64,${cropedImage.data}`;
       } catch (error) {
         throw error;
@@ -99,12 +99,12 @@ const ModalInsertPhoto = memo(
     };
 
     useImperativeHandle(ref, () => ({
-      show: () => Modal_ref.show(),
-      hide: () => Modal_ref.hide(),
+      show: () => Modal_Ref.current.show(),
+      hide: () => Modal_Ref.current.hide(),
     }));
 
     return (
-      <Modal ref={refs => (Modal_ref = refs)}>
+      <Modal ref={Modal_Ref}>
         <List
           ListHeaderComponent={() => (
             <>
@@ -274,8 +274,8 @@ const Avatar = memo(
             }}
             onPressRemove={() => {
               Modal_ref.current.hide();
-              setImg('');
-              onImageChange?.('');
+              setImg('-');
+              onImageChange?.('-');
             }}
             ref={Modal_ref}
           />

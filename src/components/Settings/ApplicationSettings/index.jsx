@@ -1,5 +1,5 @@
 import React from 'react';
-import {ScrollView, View} from 'react-native';
+import {View} from 'react-native';
 import {Text} from '../../Helper';
 
 import ToogleDarkModeButton from './ToogleDarkModeButton';
@@ -10,7 +10,7 @@ import RestoreDatabaseButton from './RestoreDatabaseButton';
 
 const ApplicationSettings = props => {
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <>
       <ToogleDarkModeButton />
 
       <Text bold hint>
@@ -28,7 +28,7 @@ const ApplicationSettings = props => {
       <View style={{paddingLeft: 24}}>
         <RestoreDatabaseButton />
       </View>
-    </ScrollView>
+    </>
   );
 };
 

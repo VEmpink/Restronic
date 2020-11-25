@@ -2,7 +2,7 @@ import {GoogleSignin, statusCodes} from '@react-native-community/google-signin';
 import snackbar from './snackbar';
 
 /**
- * Requesting a User for connection his Google Account and then Get the
+ * Requesting a User for connecting his Google Account and then Get the
  * basic info from that Account also Get the `accessToken` that will
  * be used for accessing his Google Drive.
  */
@@ -16,20 +16,7 @@ const connect = async () => {
     }
 
     const userInfo = await GoogleSignin.getCurrentUser();
-    let tokens;
-
-    /**
-     * BUG unhandled promise rejection so I use nested try catch like this
-     */
-    try {
-      tokens = await GoogleSignin.getTokens();
-    } catch (error) {
-      snackbar.show(
-        'error',
-        'Gagal terhubung ke server Google, ' +
-          'mohon periksa jaringan internet!',
-      );
-    }
+    const tokens = await GoogleSignin.getTokens();
 
     return {userInfo, tokens};
   } catch (error) {
@@ -38,10 +25,14 @@ const connect = async () => {
         snackbar.show('error', 'Layanan Google Play tidak tersedia!');
         break;
 
+      case statusCodes.SIGN_IN_CANCELLED:
+        snackbar.show('warning', 'Anda membatalkannya!');
+        break;
+
       case statusCodes.IN_PROGRESS:
         snackbar.show(
           'warning',
-          'Sedang menghubungkan ke server Google, mohon tunggu...!',
+          'Sedang menghubungkan ke server Google, mohon tunggu...',
         );
         break;
 

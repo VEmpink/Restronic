@@ -1,5 +1,5 @@
-import React, {memo, useContext} from 'react';
-import {View, ScrollView, Alert} from 'react-native';
+import React, {memo, useContext, useRef} from 'react';
+import {View, Alert} from 'react-native';
 import {Icon, Divider, Button} from '@ui-kitten/components';
 import AutoHeightImage from 'react-native-auto-height-image';
 import moment from 'moment';
@@ -63,10 +63,10 @@ const BodyCustomerDataDetails = props => {
   const {Realm} = useContext(RealmContext);
   const customer = props.customerData;
   const serviceStatus = customer.serviceStatus;
-  let ModalForm_ref;
+  const ModalForm_Ref = useRef();
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <>
       <View
         style={{
           justifyContent: 'center',
@@ -82,7 +82,14 @@ const BodyCustomerDataDetails = props => {
             borderRadius: 4,
           }}
         >
-          <Avatar uri={customer.photo} disabled />
+          <Avatar
+            uri={customer.photo}
+            onImageChange={base64 => {
+              Realm.write(() => {
+                customer.photo = base64;
+              });
+            }}
+          />
         </View>
 
         <Text size={14} hint>
@@ -120,7 +127,7 @@ const BodyCustomerDataDetails = props => {
                * Tombol untuk menampilkan Modal Form pengubah status data pelanggan
                * yang telah ditampilkan di screen ini
                */
-              ModalForm_ref.show();
+              ModalForm_Ref.current.show();
             }}
           >
             Ubah Status
@@ -157,30 +164,32 @@ const BodyCustomerDataDetails = props => {
           currentServiceStatus={serviceStatus}
           currentWarrantyTime={customer.timeWarranty}
           onPressSubmit={(selectedStatusData, warrantyTime) => {
-            Realm.write(() => {
-              if (selectedStatusData === 'onwarranty') {
-                customer.serviceFinishDate = Date.now();
-                customer.timeWarranty = warrantyTime;
+            if (serviceStatus !== selectedStatusData) {
+              Realm.write(() => {
+                if (selectedStatusData === 'onwarranty') {
+                  customer.serviceFinishDate = Date.now();
+                  customer.timeWarranty = warrantyTime;
 
-                /**
-                 * Jika wakti garansi tidak diisi atau 0
-                 * maka data akan dianggap "Telah selesai" atau
-                 * "complete"
-                 */
-                if (warrantyTime == 0) {
-                  customer.serviceStatus = 'complete';
+                  /**
+                   * Jika wakti garansi tidak diisi atau 0
+                   * maka data akan dianggap "Telah selesai" atau
+                   * "complete"
+                   */
+                  if (warrantyTime == 0) {
+                    customer.serviceStatus = 'complete';
+                  } else {
+                    customer.serviceStatus = 'onwarranty';
+                  }
                 } else {
-                  customer.serviceStatus = 'onwarranty';
+                  customer.serviceStatus = selectedStatusData;
                 }
-              } else {
-                customer.serviceStatus = selectedStatusData;
-              }
 
-              customer.updatedAt = Date.now();
-              util.snackbar.show('success', 'Status data berhasil diubah!');
-            });
+                customer.updatedAt = Date.now();
+                util.snackbar.show('success', 'Status data berhasil diubah!');
+              });
+            }
           }}
-          ref={ref => (ModalForm_ref = ref)}
+          ref={ModalForm_Ref}
         />
       </View>
 
@@ -278,7 +287,7 @@ const BodyCustomerDataDetails = props => {
       <Divider style={{marginBottom: 24}} />
 
       <DataShowcase title='Catatan' value={customer.notes} />
-    </ScrollView>
+    </>
   );
 };
 

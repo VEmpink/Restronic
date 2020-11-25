@@ -1,4 +1,4 @@
-import React, {memo, useState} from 'react';
+import React, {memo, useRef, useState} from 'react';
 import {View} from 'react-native';
 import {Layout, Icon, Button} from '@ui-kitten/components';
 import SelectDateRange from './SelectDateRange';
@@ -25,17 +25,17 @@ const FormFilterOptions = memo(
     const [isSearchMode, setSearchMode] = useState(false);
     const [visibleFormFilters, showFormFilters] = useState(false);
 
-    let SelectDateRange_ref;
-    let SelectOrderBy_ref;
-    let SelectStatusDataAndBrand_ref;
+    const SelectDateRange_Ref = useRef();
+    const SelectOrderBy_Ref = useRef();
+    const SelectStatusDataAndBrand_Ref = useRef();
 
     /**
      * This Object same as "props.currentFilterOptions"
      */
     const getFormData = () => ({
-      ...SelectDateRange_ref.getValues(),
-      ...SelectOrderBy_ref.getValues(),
-      ...SelectStatusDataAndBrand_ref.getValues(),
+      ...SelectDateRange_Ref.current.getValues(),
+      ...SelectOrderBy_Ref.current.getValues(),
+      ...SelectStatusDataAndBrand_Ref.current.getValues(),
       bySearchQuery: searchQuery,
     });
 
@@ -110,19 +110,19 @@ const FormFilterOptions = memo(
             <SelectDateRange
               currentFromDate={fromDate}
               currentUntilDate={untilDate}
-              ref={ref => (SelectDateRange_ref = ref)}
+              ref={SelectDateRange_Ref}
             />
 
             <SelectOrderBy
               currentOrderBy={orderBy}
               isCurrentlyReverseOrder={isReverseOrder}
-              ref={ref => (SelectOrderBy_ref = ref)}
+              ref={SelectOrderBy_Ref}
             />
 
             <SelectStatusDataAndBrand
               currentBrand={byBrand}
               currentStatusData={byStatusData}
-              ref={ref => (SelectStatusDataAndBrand_ref = ref)}
+              ref={SelectStatusDataAndBrand_Ref}
             />
 
             <View style={{alignItems: 'flex-start', flexDirection: 'row'}}>

@@ -6,7 +6,7 @@ import React, {
 } from 'react';
 import {View} from 'react-native';
 import {Text, NativePicker} from '../../Helper';
-import brands from '../../../api/brands.json';
+import brands from '../../../assets/json/brands.json';
 
 const menuStatusData = [
   {label: 'Pilih status data', value: ''},

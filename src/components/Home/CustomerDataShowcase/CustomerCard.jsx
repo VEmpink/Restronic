@@ -2,7 +2,7 @@ import React, {memo, useContext, useState} from 'react';
 import {View, Pressable} from 'react-native';
 import {Text, Avatar} from '../../Helper';
 import AutoHeightImage from 'react-native-auto-height-image';
-import logo from '../../../images/logos';
+import {logo} from '../../../assets/images';
 import {ThemeContext} from '../../../contexts';
 import _ from 'lodash';
 

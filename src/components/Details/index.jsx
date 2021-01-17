@@ -4,7 +4,7 @@ import {Icon, Divider, Button} from '@ui-kitten/components';
 import AutoHeightImage from 'react-native-auto-height-image';
 import moment from 'moment';
 import {Text, Avatar} from '../Helper';
-import {logo} from '../../images';
+import {logo} from '../../assets/images';
 import FormChangeStatusData from './FormChangeStatusData';
 import {RealmContext} from '../../contexts';
 import _ from 'lodash';

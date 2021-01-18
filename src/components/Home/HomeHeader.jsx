@@ -1,6 +1,7 @@
-import React, {useContext, useRef} from 'react';
+import React, {useContext} from 'react';
 import {View, Animated, Easing} from 'react-native';
-import {Text, IconHelper, Avatar, ModalProgress} from '../Helper';
+import {Text, IconHelper, Avatar} from '../Helper';
+import ProgressDialog from 'react-native-popup-progress-bar';
 import {RealmContext} from '../../contexts';
 import {useRealmObjects} from '../../hooks';
 import util from '../../utils';
@@ -55,7 +56,6 @@ const HomeHeader = props => {
   const {navigate} = props;
   const {Realm} = useContext(RealmContext);
   const user = useRealmObjects('user')[0];
-  const ModalProgress_Ref = useRef();
 
   return (
     <View style={{flexDirection: 'row', marginBottom: 24}}>
@@ -90,19 +90,27 @@ const HomeHeader = props => {
               size={20}
               onPress={async () => {
                 rotateIcon.start();
-                ModalProgress_Ref.current.show();
+
+                ProgressDialog.show({
+                  title: 'Please Wait...',
+                  message: 'Refreshing notification...',
+                  isCancelable: false,
+                });
+
                 await util.checkOnProcessCustomers(Realm);
                 await util.checkOnWarrantyCustomers(Realm);
+
+                /**
+                 * Make it more delayed because is too fast without it
+                 */
                 setTimeout(() => {
                   rotateIcon.stop();
                   initialRotate.setValue(0);
-                  ModalProgress_Ref.current.hide();
-                }, 1660);
+                  ProgressDialog.dismiss();
+                }, 1024);
               }}
             />
           </Animated.View>
-
-          <ModalProgress ref={ModalProgress_Ref} />
 
           <View>
             <NotifBadge />

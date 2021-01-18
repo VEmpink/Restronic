@@ -5636,7 +5636,6 @@ nice-try@^1.0.4:
 
 "node-addon-api@https://github.com/realm/node-addon-api/tarball/realm":
   version "3.0.2"
-  uid "740d1d3002bf24745c80f65914a85a4519e7082c"
   resolved "https://github.com/realm/node-addon-api/tarball/realm#740d1d3002bf24745c80f65914a85a4519e7082c"
 
 node-fetch@2.6.1, node-fetch@^2.6.1:
@@ -6404,6 +6403,11 @@ react-native-modal@^11.5.6:
   dependencies:
     prop-types "^15.6.2"
     react-native-animatable "1.3.3"
+
+react-native-popup-progress-bar@^1.0.2:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/react-native-popup-progress-bar/-/react-native-popup-progress-bar-1.0.6.tgz#bfe094e29d207222e22e13f1ab7f91f3af3440f5"
+  integrity sha512-5b2cqrfIX9o5mUc1CMEq/QyAfmkqJCoaPBRAxkPzinDVjsS24+COTIRc2K1M57HspXoVPT6RQ2brSC21kxKMDQ==
 
 react-native-push-notification@^5.0.1:
   version "5.0.1"

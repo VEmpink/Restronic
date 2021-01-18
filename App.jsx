@@ -40,7 +40,8 @@ const App = props => {
         'https://www.googleapis.com/auth/drive.file',
         'https://www.googleapis.com/auth/drive.appdata',
       ],
-      webClientId: RAHASIA_AKYU_YACH,
+      webClientId:
+        '921744316354-9v5v142o93bg2rcr74fhajtmrbhhkoui.apps.googleusercontent.com',
       offlineAccess: true,
       forceCodeForRefreshToken: true,
     });

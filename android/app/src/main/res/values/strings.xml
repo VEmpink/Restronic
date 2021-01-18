@@ -1,5 +1,4 @@
 <resources>
     <string name="app_name">Restronic</string>
     <string name="default_notification_channel_id">com.vempink.restronic.rn.app</string>
-    <string name="server_client_id">RAHASIA_AKYU_YACH</string>
 </resources>

@@ -2,7 +2,7 @@ import {Alert} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import FilePicker from 'react-native-document-picker';
 import REALM from 'realm';
-import realmSchema from '../schemas/realm.schema';
+import realmSchema from '../schema/realm.schema';
 import GoogleDrive from './GoogleDrive';
 import _ from 'lodash';
 import snackbar from './snackbar';

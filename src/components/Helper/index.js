@@ -1,21 +1,21 @@
-import Contrainer from './Contrainer';
-import Text from './Text';
-import IconHelper from './IconHelper';
-import TopNavigation from './TopNavigation';
+import MemoizedAvatar from './Avatar';
+import Container from './Container';
+import MemoizedIconHelper from './IconHelper';
 import Input from './Input';
-import NativePicker from './NativePicker';
 import Modal from './Modal';
-import Avatar from './Avatar';
 import ModalProgress from './ModalProgress';
+import NativePicker from './NativePicker';
+import Text from './Text';
+import TopNavigation from './TopNavigation';
 
 export {
-  Contrainer,
+  Container,
   Text,
-  IconHelper,
+  MemoizedIconHelper as IconHelper,
   TopNavigation,
   Input,
   NativePicker,
   Modal,
-  Avatar,
+  MemoizedAvatar as Avatar,
   ModalProgress,
 };

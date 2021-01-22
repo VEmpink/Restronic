@@ -1,18 +1,18 @@
-import RNFetchBlob from 'rn-fetch-blob';
 import moment from 'moment';
 import PushNotification from 'react-native-push-notification';
+import RNFetchBlob from 'rn-fetch-blob';
 
-const fs = RNFetchBlob.fs;
+import {Userdata} from '../types';
+
+const {fs} = RNFetchBlob;
 
 /**
- * Periksa, apakah tanggal sekarang sudah melampaui tanggal cadangan otomatis
- * yang telah ditentukan? Jika iya maka kirim notifikasinya
- * @param {Realm} Realm
+ * Check if this time to auto backup
  */
-const checkAutoBackupDate = async Realm => {
-  const user = Realm.objects('user')[0];
+async function checkAutoBackupDate(Realm: Realm): Promise<void> {
+  const user = Realm.objects<Userdata>('user')[0];
 
-  if (user.autoBackupTime > 0) {
+  if (typeof user.autoBackupTime === 'number') {
     const autoBackupDate =
       user.autoBackupStartDate + user.autoBackupTime * 864e5;
 
@@ -64,6 +64,6 @@ const checkAutoBackupDate = async Realm => {
       });
     }
   }
-};
+}
 
 export default checkAutoBackupDate;

@@ -1,4 +1,4 @@
-import ThemeContext from './ThemeContext';
 import RealmContext from './RealmContext';
+import ThemeContext from './ThemeContext';
 
 export {ThemeContext, RealmContext};

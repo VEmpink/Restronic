@@ -2,9 +2,12 @@ import Snackbar from 'react-native-snackbar';
 
 /**
  * Show message with `react-native-snackbar`
- * @param {'error' | 'warning' | 'success'} type default `"error"`
  */
-function show(type = 'error', message = 'Sample message!', isAutoClose = true) {
+function show(
+  type: 'error' | 'warning' | 'success' = 'error',
+  message = 'Sample message!',
+  isAutoClose = true,
+): void {
   let bgColor = '#FF3D71';
 
   switch (type) {
@@ -14,6 +17,9 @@ function show(type = 'error', message = 'Sample message!', isAutoClose = true) {
 
     case 'warning':
       bgColor = '#FFAA00';
+      break;
+
+    default:
       break;
   }
 
@@ -27,6 +33,8 @@ function show(type = 'error', message = 'Sample message!', isAutoClose = true) {
   });
 }
 
-export default {
+const snackbar = {
   show,
 };
+
+export default snackbar;

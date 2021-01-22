@@ -1,20 +1,21 @@
 import PushNotification from 'react-native-push-notification';
 
+import {Customer, Notification} from '../types';
+
 /**
  * Periksa, apakah ada data pelanggan yang sudah habis
  * garansinya? Jika ada maka kirim notifikasinya
- * @param {Realm} Realm
  */
-const checkOnWarrantyCustomers = Realm => {
-  return new Promise((resolve, reject) => {
-    const onWarrantyCustomers = Realm.objects('customers').filtered(
+function checkOnWarrantyCustomers(Realm: Realm): Promise<void> {
+  return new Promise((resolve) => {
+    const onWarrantyCustomers = Realm.objects<Customer>('customers').filtered(
       'serviceStatus == "onwarranty"',
     );
-    const notifications = Realm.objects('notifications');
+    const notifications = Realm.objects<Notification>('notifications');
 
-    let notificationIds = [];
+    const notificationIds: number[] = [];
     if (!notifications.isEmpty()) {
-      notifications.forEach(notif => {
+      notifications.forEach((notif) => {
         notificationIds.push(notif._id);
       });
     }
@@ -33,7 +34,7 @@ const checkOnWarrantyCustomers = Realm => {
            * maka kirim notifikasinya
            */
           if (Date.now() >= warrantyDate) {
-            count++;
+            count += 1;
 
             /**
              * Jika Id Notifikasi sudah ada di dalam database (Realm)
@@ -41,7 +42,7 @@ const checkOnWarrantyCustomers = Realm => {
              * tambahkan yang baru
              */
             if (notificationIds.includes(onWarrantyCustomers[i]._id)) {
-              let notif = notifications.filtered(
+              const notif = notifications.filtered(
                 `_id = ${onWarrantyCustomers[i]._id}`,
               )[0];
 
@@ -88,6 +89,6 @@ const checkOnWarrantyCustomers = Realm => {
 
     resolve();
   });
-};
+}
 
 export default checkOnWarrantyCustomers;

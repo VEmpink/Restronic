@@ -1,48 +1,55 @@
 import {GoogleSignin} from '@react-native-community/google-signin';
-import GoogleDrive from './GoogleDrive';
-import RNFetchBlob from 'rn-fetch-blob';
 import moment from 'moment';
+import RNFetchBlob from 'rn-fetch-blob';
+
+import {Userdata} from '../types';
+
+import GoogleDrive from './googleDrive';
 import snackbar from './snackbar';
 
-const fs = RNFetchBlob.fs;
+const {fs} = RNFetchBlob;
+
+type BackupOptions = {
+  realm: Realm;
+  dirStorageLocation?: string;
+  onProgress: (progress: number) => void;
+};
 
 /**
- * Fungsi untuk mencadangkan database Realm ke Local Storage dan ke
- * Google Drive jika akun Google pengguna telah terhubung
- * @param {Realm} Realm
- * @param {(percentage: number) => void} progressCallback
+ * Backup database to device storage and or to
+ * Google Drive if user goggle account has been connected
  */
-async function backupDatabase(
-  Realm,
-  progressCallback,
-  dirPath = `${fs.dirs.SDCardDir}/Backups`,
-) {
+async function backup({
+  realm,
+  dirStorageLocation = `${fs.dirs.SDCardDir}/Backups`,
+  onProgress,
+}: BackupOptions): Promise<void> {
   try {
     const D = Date.now();
     const fileName =
       `restronic.backup.date${moment(D).format('DD-MM-YYYY')}` +
       `.time${moment(D).format('HH-mm')}.${D}.realm`;
-    const pathFile = `${dirPath}/${fileName}`;
+    const pathLocation = `${dirStorageLocation}/${fileName}`;
 
     /**
      * Ambil data pengguna dan ubah tanggal terakhir kali pengguna mencadangkan
      * database-nya
      */
-    const user = Realm.objects('user')[0];
+    const user = realm.objects<Userdata>('user')[0];
 
     /**
      * Selalu pastikan directory atau folder tersedia untuk mencegah
      * Error Directory Not Found
      */
     try {
-      await fs.mkdir(dirPath);
+      await fs.mkdir(dirStorageLocation);
     } catch (error) {}
 
     /**
      * Cadangkan secara local maka file akan disimpan ke "pathFile"
      * oleh si Realm
      */
-    Realm.writeCopyTo(pathFile);
+    realm.writeCopyTo(pathLocation);
 
     try {
       /**
@@ -95,16 +102,16 @@ async function backupDatabase(
           const uploadData = await RNFetchBlob.config({timeout: 7000})
             .fetch(
               'PUT',
-              uploadURL,
+              uploadURL || '',
               {
                 Authorization: `Bearer ${accessToken}`,
                 'Content-Type': 'application/octet-stream',
               },
-              RNFetchBlob.wrap(pathFile),
+              RNFetchBlob.wrap(pathLocation),
             )
             .uploadProgress((bytesWritten, totalFileSize) => {
               const percentage = (bytesWritten / totalFileSize) * 100;
-              progressCallback?.(percentage);
+              onProgress(percentage);
             });
 
           const {respInfo} = uploadData;
@@ -128,7 +135,7 @@ async function backupDatabase(
              * Ubah tanggal terakhir kali pengguna mencadangkan database-nya ke
              * Local Storage dan ke Google Drive
              */
-            Realm.write(() => {
+            realm.write(() => {
               user.lastLocalBackupAt = Date.now();
               user.lastCloudBackupAt = Date.now();
             });
@@ -150,7 +157,7 @@ async function backupDatabase(
       /**
        * Ubah tanggal terakhir kali pengguna mencadangkan database-nya secara Local
        */
-      Realm.write(() => {
+      realm.write(() => {
         user.lastLocalBackupAt = Date.now();
       });
 
@@ -161,4 +168,4 @@ async function backupDatabase(
   }
 }
 
-export default backupDatabase;
+export default backup;

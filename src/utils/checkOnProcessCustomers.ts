@@ -1,20 +1,20 @@
 import PushNotification from 'react-native-push-notification';
 
+import {Customer, Notification} from '../types';
+
 /**
- * Periksa, apakah ada data pelanggan yang sudah melewati
- * waktu perkiraan selesai? Jika ada maka kirim notifikasinya
- * @param {Realm} Realm
+ * Notify user if there's any "onprocess" customer data is timeout
  */
-const checkOnProcessCustomers = Realm => {
-  return new Promise((resolve, reject) => {
-    const onProcessCustomers = Realm.objects('customers').filtered(
+function checkOnProcessCustomers(Realm: Realm): Promise<void> {
+  return new Promise((resolve) => {
+    const onProcessCustomers = Realm.objects<Customer>('customers').filtered(
       'serviceStatus == "onprocess"',
     );
-    const notifications = Realm.objects('notifications');
+    const notifications = Realm.objects<Notification>('notifications');
 
-    let notificationIds = [];
+    const notificationIds: number[] = [];
     if (!notifications.isEmpty()) {
-      notifications.forEach(notif => {
+      notifications.forEach((notif) => {
         notificationIds.push(notif._id);
       });
     }
@@ -32,7 +32,7 @@ const checkOnProcessCustomers = Realm => {
            * kirim notifikasinya
            */
           if (Date.now() >= estimateDate) {
-            count++;
+            count += 1;
 
             /**
              * Jika Id Notifikasi sudah ada di dalam database (Realm)
@@ -40,7 +40,7 @@ const checkOnProcessCustomers = Realm => {
              * tambahkan yang baru
              */
             if (notificationIds.includes(onProcessCustomers[i]._id)) {
-              let notif = notifications.filtered(
+              const notif = notifications.filtered(
                 `_id = ${onProcessCustomers[i]._id}`,
               )[0];
 
@@ -83,6 +83,6 @@ const checkOnProcessCustomers = Realm => {
 
     resolve();
   });
-};
+}
 
 export default checkOnProcessCustomers;

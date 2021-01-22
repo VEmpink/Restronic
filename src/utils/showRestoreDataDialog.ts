@@ -1,21 +1,29 @@
 import {Alert} from 'react-native';
-import RNFetchBlob from 'rn-fetch-blob';
+
+import _ from 'lodash';
 import FilePicker from 'react-native-document-picker';
 import REALM from 'realm';
+import RNFetchBlob from 'rn-fetch-blob';
+
 import realmSchema from '../schema/realm.schema';
-import GoogleDrive from './GoogleDrive';
-import _ from 'lodash';
+import {Customer, Notification, Userdata} from '../types';
+
+import GoogleDrive from './googleDrive';
 import snackbar from './snackbar';
 
-const fs = RNFetchBlob.fs;
+const {fs} = RNFetchBlob;
 
-/**
- *
- * @param {Realm} currentRealm
- * @param {string} oldRealmFilePath
- * @param {Function} cb Success callback
- */
-const handleRestoreData = async (currentRealm, oldRealmFilePath, cb) => {
+type HandleRestoreDataOptions = {
+  currentRealm: Realm;
+  oldRealmFilePath: string;
+  onSuccess: () => void;
+};
+
+async function handleRestoreData(
+  options: HandleRestoreDataOptions,
+): Promise<void> {
+  const {currentRealm, oldRealmFilePath, onSuccess} = options;
+
   try {
     /**
      * Open old Realm file
@@ -28,23 +36,27 @@ const handleRestoreData = async (currentRealm, oldRealmFilePath, cb) => {
     /**
      * Get all data from the old Realm
      */
-    const oldUserData = oldRealm.objects('user').toJSON()[0];
-    const oldCustomers = oldRealm.objects('customers').toJSON();
-    const oldNotifications = oldRealm.objects('notifications').toJSON();
+    const oldUserData = oldRealm.objects<Userdata>('user').toJSON()[0];
+    const oldCustomers = oldRealm.objects<Customer>('customers').toJSON();
+    const oldNotifications = oldRealm
+      .objects<Notification>('notifications')
+      .toJSON();
 
     /**
      * Get all data from the current Realm
      */
-    const currentUserData = currentRealm.objects('user');
-    const currentCustomers = currentRealm.objects('customers');
-    const currentNotifications = currentRealm.objects('notifications');
+    const currentUserData = currentRealm.objects<Userdata>('user');
+    const currentCustomers = currentRealm.objects<Customer>('customers');
+    const currentNotifications = currentRealm.objects<Notification>(
+      'notifications',
+    );
 
     /**
      * Get all Customer Ids from the current Realm
      */
-    let listCurrentCustomerIds = [];
+    const listCurrentCustomerIds: number[] = [];
     if (!currentCustomers.isEmpty()) {
-      currentCustomers.forEach(currentCustomer =>
+      currentCustomers.forEach((currentCustomer) =>
         listCurrentCustomerIds.push(currentCustomer._id),
       );
     }
@@ -52,9 +64,9 @@ const handleRestoreData = async (currentRealm, oldRealmFilePath, cb) => {
     /**
      * Get all Notification Ids from the current Realm
      */
-    let listCurrentNotificationIds = [];
+    const listCurrentNotificationIds: number[] = [];
     if (!currentNotifications.isEmpty()) {
-      currentNotifications.forEach(notif =>
+      currentNotifications.forEach((notif) =>
         listCurrentNotificationIds.push(notif._id),
       );
     }
@@ -66,24 +78,27 @@ const handleRestoreData = async (currentRealm, oldRealmFilePath, cb) => {
          * is Empty
          */
         currentRealm.create('user', oldUserData);
-      } else {
-        /**
-         * Do Not insert the old user data If the current user data
-         * is the same Id with the old user data
-         */
-        if (currentUserData[0]._id !== oldUserData._id) {
-          currentRealm.create('user', oldUserData);
+      }
 
-          /**
-           * In here i passing "[1]" or index 1 because the "oldUserData"
-           * will be the "[0]" or index 0
-           */
-          currentRealm.delete(currentUserData[1]);
-        }
+      /**
+       * Do Not insert the old user data If the current user data
+       * is the same Id with the old user data
+       */
+      if (
+        !currentUserData.isEmpty() &&
+        currentUserData[0]._id !== oldUserData._id
+      ) {
+        currentRealm.create('user', oldUserData);
+
+        /**
+         * In here i passing "[1]" or index 1 because the "oldUserData"
+         * will be the "[0]" or index 0
+         */
+        currentRealm.delete(currentUserData[1]);
       }
 
       if (oldCustomers.length > 0) {
-        oldCustomers.forEach(oldCustomer => {
+        oldCustomers.forEach((oldCustomer) => {
           /**
            * Insert every Customer data If the Id is not available in
            * "listCurrentCustomerIds"
@@ -95,7 +110,7 @@ const handleRestoreData = async (currentRealm, oldRealmFilePath, cb) => {
       }
 
       if (oldNotifications.length > 0) {
-        oldNotifications.forEach(oldNotif => {
+        oldNotifications.forEach((oldNotif) => {
           /**
            * Insert every Notification data If the Id is not available in
            * "listCurrentNotificationIds"
@@ -115,7 +130,7 @@ const handleRestoreData = async (currentRealm, oldRealmFilePath, cb) => {
       /**
        * Response success callback
        */
-      cb?.();
+      onSuccess();
     });
   } catch (error) {
     snackbar.show('error', 'Gagal memulihkan Database!');
@@ -130,11 +145,14 @@ const handleRestoreData = async (currentRealm, oldRealmFilePath, cb) => {
     const oldRealmDirPath = _.dropRight(splitPath).join('/');
     const oldRealmCacheFiles = await fs.lstat(oldRealmDirPath);
 
-    oldRealmCacheFiles.forEach(async cache => {
-      const oldRealmFileNameWithoutEXT = oldRealmFileName.replace('.realm', '');
+    oldRealmCacheFiles.forEach(async (cache) => {
+      const oldRealmFileNameWithoutEXT = oldRealmFileName?.replace(
+        '.realm',
+        '',
+      );
 
       if (
-        cache.filename.includes(oldRealmFileNameWithoutEXT) &&
+        cache.filename.includes(oldRealmFileNameWithoutEXT || '') &&
         cache.filename !== oldRealmFileName
       ) {
         await fs.unlink(`${oldRealmDirPath}/${cache.filename}`);
@@ -146,6 +164,13 @@ const handleRestoreData = async (currentRealm, oldRealmFilePath, cb) => {
       'Kesalahan membersihkan sampah dari file cadangan!',
     );
   }
+}
+
+type ShowRestoreDataDialogOptions = {
+  Realm: Realm;
+  onPressMenu: () => void;
+  onSuccess: () => void;
+  onFinally: () => void;
 };
 
 /**
@@ -159,7 +184,12 @@ const handleRestoreData = async (currentRealm, oldRealmFilePath, cb) => {
  * @param {() => void} config.onSuccess Success callback
  * @param {() => void} config.onFinally After all code has been executed. Error is ignored
  */
-const showRestoreDataDialog = ({Realm, handlePress, onSuccess, onFinally}) => {
+function showRestoreDataDialog({
+  Realm,
+  onPressMenu,
+  onSuccess,
+  onFinally,
+}: ShowRestoreDataDialogOptions): void {
   Alert.alert(
     'Pulihkan data lama?',
     'Dimana lokasi data lama Anda disimpan?',
@@ -167,7 +197,7 @@ const showRestoreDataDialog = ({Realm, handlePress, onSuccess, onFinally}) => {
       {
         text: 'Google Drive',
         onPress: async () => {
-          handlePress?.();
+          onPressMenu();
 
           try {
             const resConnect = await GoogleDrive.connect();
@@ -179,7 +209,7 @@ const showRestoreDataDialog = ({Realm, handlePress, onSuccess, onFinally}) => {
               if (files && files.length) {
                 const fileId = files[0].id;
                 const fileName = files[0].name;
-                const dirPath = fs.dirs.SDCardDir + '/Backups';
+                const dirPath = `${fs.dirs.SDCardDir}/Backups`;
                 const filePath = `${dirPath}/${fileName}`;
 
                 /**
@@ -213,11 +243,10 @@ const showRestoreDataDialog = ({Realm, handlePress, onSuccess, onFinally}) => {
                 );
 
                 if (data) {
-                  await handleRestoreData(Realm, data, () => {
-                    /**
-                     * Response success callback
-                     */
-                    onSuccess?.();
+                  await handleRestoreData({
+                    currentRealm: Realm,
+                    oldRealmFilePath: data,
+                    onSuccess,
                   });
                 } else {
                   throw new Error('Retrieve Database failed!');
@@ -243,21 +272,20 @@ const showRestoreDataDialog = ({Realm, handlePress, onSuccess, onFinally}) => {
       {
         text: 'Local Storage',
         onPress: async () => {
-          handlePress?.();
+          onPressMenu?.();
 
           try {
             const selectedFile = await FilePicker.pick({
-              type: ['application/*'],
+              type: ['*/*'],
             });
             const selectedFilePath = selectedFile.uri.replace('file://', '');
             const selectedFileExt = _.last(selectedFilePath.split('.'));
 
             if (selectedFileExt === 'realm') {
-              await handleRestoreData(Realm, selectedFilePath, () => {
-                /**
-                 * Response success callback
-                 */
-                onSuccess?.();
+              await handleRestoreData({
+                currentRealm: Realm,
+                oldRealmFilePath: selectedFilePath,
+                onSuccess,
               });
             } else {
               snackbar.show('error', 'File yang dipilih tidak valid!');
@@ -274,6 +302,6 @@ const showRestoreDataDialog = ({Realm, handlePress, onSuccess, onFinally}) => {
     ],
     {cancelable: true},
   );
-};
+}
 
 export default showRestoreDataDialog;

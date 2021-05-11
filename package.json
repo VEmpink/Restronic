@@ -23,7 +23,7 @@
     "buffer": "^6.0.2",
     "fastestsmallesttextencoderdecoder": "^1.0.22",
     "joi": "^17.2.1",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "moment": "^2.29.0",
     "prop-types": "^15.7.2",
     "react": "16.13.1",

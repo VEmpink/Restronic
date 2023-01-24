@@ -7,7 +7,10 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "reinstall-packages": "rm -rf package-lock.json && rm -rf yarn.lock && rm -rf node_modules && yarn",
+    "cleanup-android": "cd android && ./gradlew --stop && ./gradlew clean && cd ../",
+    "cleanup-ios": "rm -rf ios/Podfile.lock && rm -rf ios/Pods && cd ios && pod repo update && pod update && pod install && cd ../"
   },
   "dependencies": {
     "@eva-design/eva": "^2.0.0",
@@ -35,7 +38,7 @@
     "react-native-masked-text": "^1.13.0",
     "react-native-modal": "^11.5.6",
     "react-native-popup-progress-bar": "^1.0.2",
-    "react-native-push-notification": "^5.0.1",
+    "react-native-push-notification": "^7.3.0",
     "react-native-reanimated": "^1.13.0",
     "react-native-safe-area-context": "^3.1.7",
     "react-native-screens": "^2.10.1",
